@@ -1,6 +1,9 @@
+import 'package:as400app/DispatchMenu.dart';
+import 'package:as400app/InactiveMenu.dart';
 import 'package:as400app/MainMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 class LogInView extends StatefulWidget {
   @override
@@ -252,14 +255,68 @@ class _LogInViewState extends State<LogInView> {
   }
 }
 
-void main() => runApp(MaterialApp(
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LogInView(),
+      initialRoute: '/',
       routes: {
+        '/': (context) => LogInView(),
         '/mainMenu': (context) => MainMenu(),
         '/adminPage': (context) => AdminPage(),
+        '/customerServices': (context) => CustomerServicesMenu(),
+        '/dispatchServiceMenu': (context) => DispatchServiceMenu(),
+        '/inactiveMenu': (context) => InactiveMenu(),
       },
-    ));
+    );
+  }
+}
+
+class GlobalKeyListener extends StatefulWidget {
+  final Widget child;
+
+  GlobalKeyListener({required this.child});
+
+  @override
+  _GlobalKeyListenerState createState() => _GlobalKeyListenerState();
+}
+
+class _GlobalKeyListenerState extends State<GlobalKeyListener> {
+  FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.f3 &&
+              Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+          // Add more global key bindings here as needed
+        }
+      },
+      child: widget.child,
+    );
+  }
+}
 
 class AdminPage extends StatelessWidget {
   @override

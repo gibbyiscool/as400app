@@ -1,3 +1,5 @@
+import 'package:as400app/DispatchMenu.dart';
+import 'package:as400app/InactiveMenu.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -6,6 +8,7 @@ void main() => runApp(MaterialApp(
       home: MainMenu(),
       routes: {
         '/mainMenu': (context) => MainMenu(),
+        '/dispatchServiceMenu': (context) => DispatchServiceMenu()
       },
     ));
 
@@ -50,7 +53,7 @@ class _MainMenuState extends State<MainMenu> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerServicesMenu()));
         break;
       case '2':
-        Navigator.push(context, MaterialPageRoute(builder: (context) => DispatchServicesMenu()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DispatchServiceMenu()));
         break;
       case '3':
       case '4':
@@ -198,9 +201,11 @@ class _MainMenuState extends State<MainMenu> {
                           child: TextField(
                             style: TextStyle(color: const Color.fromARGB(255, 92, 216, 96), fontFamily: 'Courier', fontSize: fontSize),
                             cursorColor: Colors.white,
+                            maxLength: 2, // Limit input to 2 characters
+                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               isDense: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(vertical: 5),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.green),
                               ),
@@ -264,31 +269,3 @@ class CustomerServicesMenu extends StatelessWidget {
   }
 }
 
-class DispatchServicesMenu extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dispatch Services Menu'),
-      ),
-      body: Center(
-        child: Text('Welcome to Dispatch Services Menu'),
-      ),
-    );
-  }
-}
-
-class InactiveMenu extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Text(
-          'This menu is not active.',
-        style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: 16),
-        ),
-      ),
-    );
-  }
-}
