@@ -1,15 +1,18 @@
 import 'package:as400app/InactiveMenu.dart';
+import 'package:as400app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
 import 'package:as400app/MainMenu.dart';
+import 'package:as400app/TruckScreen.dart';
 
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainMenu(),
+      home: LogInView(),
       routes: {
         '/dispatchServiceMenu': (context) => DispatchServiceMenu(),
+        '/mainMenu':(context) => MainMenu()
       },
     ));
 
@@ -58,6 +61,9 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
     switch (input) {
       case '90':
         Navigator.of(context).popUntil((route) => route.isFirst);
+        break;
+      case '3':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TruckScreen()));
         break;
       default:
         if (int.tryParse(input) != null && int.parse(input) >= 1 && int.parse(input) <= _totalOptions) {
@@ -364,5 +370,16 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
         return '';
     }
   }
+}  
+Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Text(
+          'This menu is not active.',
+        style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: 16),
+        ),
+      ),
+    );
 }
 

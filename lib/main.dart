@@ -255,7 +255,6 @@ class _LogInViewState extends State<LogInView> {
   }
 }
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -270,7 +269,7 @@ class MyApp extends StatelessWidget {
         '/adminPage': (context) => AdminPage(),
         '/customerServices': (context) => CustomerServicesMenu(),
         '/dispatchServiceMenu': (context) => DispatchServiceMenu(),
-        '/inactiveMenu': (context) => InactiveMenu(),
+        //'/inactiveMenu': (context) => InactiveMenu(),
       },
     );
   }
