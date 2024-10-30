@@ -1,5 +1,4 @@
 import 'package:as400app/DispatchMenu.dart';
-import 'package:as400app/InactiveMenu.dart';
 import 'package:as400app/MainMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -71,7 +70,7 @@ class _LogInViewState extends State<LogInView> {
                           child: Text(
                             fullTruckAsciiArt(),
                             style: TextStyle(
-                              fontFamily: 'Courier',
+                              fontFamily: 'Courier New',
                               fontSize: fontSize,
                               color: Colors.blue,
                             ),
@@ -113,7 +112,7 @@ class _LogInViewState extends State<LogInView> {
                                   'www.westernexp.com',
                                   style: TextStyle(
                                     color: Colors.blue,
-                                    fontFamily: 'Courier',
+                                    fontFamily: 'Courier New',
                                     fontSize: fontSize,
                                     decoration: TextDecoration.underline,
                                     decorationThickness: 2.0,
@@ -129,7 +128,7 @@ class _LogInViewState extends State<LogInView> {
                                     'User ------',
                                     style: TextStyle(
                                       color: Colors.green,
-                                      fontFamily: 'Courier',
+                                      fontFamily: 'Courier New',
                                       fontSize: fontSize,
                                     ),
                                   ),
@@ -145,7 +144,7 @@ class _LogInViewState extends State<LogInView> {
                                       },
                                       style: TextStyle(
                                         color: Colors.green,
-                                        fontFamily: 'Courier',
+                                        fontFamily: 'Courier New',
                                         fontSize: fontSize,
                                       ),
                                       decoration: InputDecoration(
@@ -171,7 +170,7 @@ class _LogInViewState extends State<LogInView> {
                                     'Password --',
                                     style: TextStyle(
                                       color: Colors.green,
-                                      fontFamily: 'Courier',
+                                      fontFamily: 'Courier New',
                                       fontSize: fontSize,
                                     ),
                                   ),
@@ -188,7 +187,7 @@ class _LogInViewState extends State<LogInView> {
                                       obscureText: true,
                                       style: TextStyle(
                                         color: const Color.fromARGB(0, 0, 0, 0),
-                                        fontFamily: 'Courier',
+                                        fontFamily: 'Courier New',
                                         fontSize: fontSize,
                                       ),
                                       decoration: InputDecoration(
@@ -210,7 +209,7 @@ class _LogInViewState extends State<LogInView> {
                                     errorMessage!,
                                     style: TextStyle(
                                       color: Colors.red,
-                                      fontFamily: 'Courier',
+                                      fontFamily: 'Courier New',
                                       fontSize: fontSize,
                                     ),
                                   ),
@@ -286,7 +285,7 @@ class GlobalKeyListener extends StatefulWidget {
 
 class _GlobalKeyListenerState extends State<GlobalKeyListener> {
   FocusNode _focusNode = FocusNode();
-
+ 
   @override
   void initState() {
     super.initState();

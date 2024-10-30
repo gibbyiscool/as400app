@@ -60,7 +60,7 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
   void navigateToMenu(String input) {
     switch (input) {
       case '90':
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LogInView()));
         break;
       case '3':
         Navigator.push(context, MaterialPageRoute(builder: (context) => TruckScreen()));
@@ -163,7 +163,7 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
                             ),
                           ),
                           Text(
-                            '©2003,2024 Trimble Inc. All rights reserved.',
+                            '©2003, 2024 Trimble Inc. All rights reserved.',
                             style: TextStyle(color: Colors.blue, fontFamily: 'Courier', fontSize: fontSize / 1.2),
                           ),
                         ],

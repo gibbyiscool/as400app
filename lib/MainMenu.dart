@@ -1,5 +1,6 @@
 import 'package:as400app/DispatchMenu.dart';
 import 'package:as400app/InactiveMenu.dart';
+import 'package:as400app/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -59,11 +60,12 @@ class _MainMenuState extends State<MainMenu> {
       case '4':
       case '5':
       case '6':
+       //Navigator.push(context, MaterialPageRoute(builder: (context) => ()));
       case '7':
         Navigator.push(context, MaterialPageRoute(builder: (context) => InactiveMenu()));
         break;
       case '90':
-        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LogInView()));
         break;
       default:
         setState(() {
@@ -98,11 +100,11 @@ class _MainMenuState extends State<MainMenu> {
                       children: [
                         Text(
                           '${_getCurrentDate()}',
-                          style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: fontSize/1.4),
+                          style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize/1.4),
                         ),
                         Text(
                           '${_getCurrentTime()}',
-                          style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: fontSize/1.4),
+                          style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize/1.4),
                         ),
                       ],
                     ),
@@ -116,7 +118,7 @@ class _MainMenuState extends State<MainMenu> {
                       children: [
                         Text(
                           'Western Express, Inc.',
-                          style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: fontSize),
+                          style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize),
                         ),
                         Container(
                           alignment: Alignment.center,
@@ -126,12 +128,12 @@ class _MainMenuState extends State<MainMenu> {
                           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 1.0),
                           child: Text(
                             'MAIN MENU',
-                            style: TextStyle(color: Colors.black, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.black, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                         ),
                         Text(
-                          '©2003,2024 Trimble Inc. All rights reserved.',
-                          style: TextStyle(color: Colors.blue, fontFamily: 'Courier', fontSize: fontSize / 1.2),
+                          '©2003, 2024 Trimble Inc. All rights reserved.',
+                          style: TextStyle(color: Colors.blue, fontFamily: 'Courier New', fontSize: fontSize / 1.2),
                         ),
                       ],
                     ),

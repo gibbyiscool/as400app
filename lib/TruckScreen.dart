@@ -121,11 +121,11 @@ class _TruckScreenState extends State<TruckScreen> {
                         children: [
                           Text(
                             'Order #: $currentOrderNumber',
-                            style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: fontSize / 1.4),
+                            style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize / 1.4),
                           ),
                           Text(
                             '${_getCurrentDate()} ${_getCurrentTime()}',
-                            style: TextStyle(color: Colors.white, fontFamily: 'Courier', fontSize: fontSize / 1.4),
+                            style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize / 1.4),
                           ),
                         ],
                       ),
@@ -138,35 +138,35 @@ class _TruckScreenState extends State<TruckScreen> {
                         children: [
                           Text(
                             'Trac: _______   Trlr: _______   TRN: _______',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Drv1: _______   Drv2: _______   Home: $drv1Home   Home: $drv2Home',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Dmgr: $dmgr1   Dmgr: $dmgr2',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Cust: _______   Cons: _______   Cont: $cont',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Orig: _______   Dest: _______   Cust#: _______',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Cmdty: _______   Trlr Plt Bal: _______',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'Mile Load: $mileLoad',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           Text(
                             'NxtS Date/Time: ${_getCurrentDate()} ${_getCurrentTime()}   ETA: _______   PTA: _______',
-                            style: TextStyle(color: Colors.green, fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                         ],
                       ),
@@ -179,12 +179,12 @@ class _TruckScreenState extends State<TruckScreen> {
                         children: [
                           Text(
                             'Enter Location:',
-                            style: TextStyle(color: const Color.fromARGB(255, 92, 216, 96), fontFamily: 'Courier', fontSize: fontSize),
+                            style: TextStyle(color: const Color.fromARGB(255, 92, 216, 96), fontFamily: 'Courier New', fontSize: fontSize),
                           ),
                           SizedBox(
                             width: adjustedWidth * 0.4,
                             child: TextField(
-                              style: TextStyle(color: const Color.fromARGB(255, 92, 216, 96), fontFamily: 'Courier', fontSize: fontSize),
+                              style: TextStyle(color: const Color.fromARGB(255, 92, 216, 96), fontFamily: 'Courier New', fontSize: fontSize),
                               cursorColor: Colors.white,
                               decoration: InputDecoration(
                                 isDense: true,

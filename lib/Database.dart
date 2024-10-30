@@ -1,15 +1,6 @@
 import 'package:as400app/TruckScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
-
-void main() => runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TruckScreen(),
-      routes: {
-        '/truckScreen': (context) => TruckScreen(),
-      },
-    ));
 
 class TruckDatabase {
   static final TruckDatabase _instance = TruckDatabase._internal();
@@ -42,15 +33,15 @@ class OrderDatabase {
     '0560933': Order(
       custCode: 'PSPS',
       cust: CustomerDatabase().getCustomerName('PSPS'),
-      orig: 'Hollis Center',
+      orig: CustomerDatabase().getCity('PSPS'),
       cmdty: 'FAK',
       mileLoad: '439',
       trlrPalletBal: '',
-      consCode:'CAC',
-      cons: 'C&S WHOLESALE GROCER',
+      consCode: 'MEME',
+      cons: CustomerDatabase().getCustomerName('MEME'),
       cont: '11111111',
-      dest: 'Robesonia',
-      custNumber: '8924568',
+      dest: CustomerDatabase().getCity('MEME'),
+      custNumber: '0000000000',
       del: '',
       currentOrderNumber: '0560933',
       eta: '',
@@ -73,6 +64,12 @@ class OrderDatabase {
       customerComments: 'Handle with care',
     ),
   };
+
+  void addOrder(Order order) {
+    order.cust = CustomerDatabase().getCustomerName(order.custCode);
+    order.orig = CustomerDatabase().getCity(order.custCode);
+    orders[order.currentOrderNumber] = order;
+  }
 }
 
 class CustomerDatabase {
@@ -89,63 +86,51 @@ class CustomerDatabase {
       zip: '04039',
       csr: 'John Doe',
       cityCode: 'HC ME',
+      city: "Hollis Center"
     ),
     'MEME': Customer(
-      customerCode: 'PSPS',
-      customerName: 'Poland Springs',
-      address: '123 Poland Springs Rd',
-      zip: '04039',
-      csr: 'John Doe',
-      cityCode: 'HC ME',
+      customerCode: 'MEME',
+      customerName: 'Memphis Enterprises',
+      address: '456 Memphis Blvd',
+      zip: '38103',
+      csr: 'Jane Doe',
+      cityCode: 'MEM TN',
+      city: "Memphis",
+    ),
+    'BSSS': Customer(
+      customerCode: 'BSSS',
+      customerName: 'Ball',
+      address: '155 Memphis Blvd',
+      zip: '13298',
+      csr: 'Devin Larry',
+      cityCode: 'NASHTN',
+      city: 'Nashville'
     ),
   };
+
+  static CustomerDatabase get instance => _instance;
+
+  Customer? getCustomer(String custCode) {
+    return customers[custCode];
+  }
 
   String getCustomerName(String custCode) {
     return customers[custCode]?.customerName ?? 'Unknown Customer';
   }
+
+  String getCity(String custCode) {
+    return customers[custCode]?.city ?? 'Unknown City';
+  }
+
+  void addCustomer(Customer customer) {
+    if (!customers.containsKey(customer.customerCode)) {
+      customers[customer.customerCode] = customer;
+    } else {
+      throw Exception('Customer with code ${customer.customerCode} already exists.');
+    }
+  }
 }
 
-class Customer {
-  String customerCode;
-  String customerName;
-  String address;
-  String zip;
-  String csr;
-  String cityCode;
-
-  Customer({
-    required this.customerCode,
-    required this.customerName,
-    required this.address,
-    required this.zip,
-    required this.csr,
-    required this.cityCode,
-  });
-}
-
-class Truck {
-  String tracNumber;
-  String trlrNumber;
-  String drv1Code;
-  String drv2Code;
-  String drv1Home;
-  String drv2Home;
-  String dmgr1;
-  String dmgr2;
-  String orderNumber;
-
-  Truck({
-    required this.tracNumber,
-    required this.trlrNumber,
-    required this.drv1Code,
-    required this.drv2Code,
-    required this.drv1Home,
-    required this.drv2Home,
-    required this.dmgr1,
-    required this.dmgr2,
-    required this.orderNumber,
-  });
-}
 
 class Order {
   String custCode;
@@ -212,5 +197,85 @@ class Order {
     required this.puRefNumber,
     required this.delRefNumber,
     required this.customerComments,
+  });
+
+  static Order createNewOrder(String custCode, String customerName, String origin) {
+    return Order(
+      custCode: custCode,
+      cust: customerName,
+      orig: origin,
+      cmdty: '',
+      mileLoad: '',
+      trlrPalletBal: '',
+      consCode: '',
+      cons: '',
+      cont: '',
+      dest: '',
+      custNumber: '',
+      del: '',
+      currentOrderNumber: '',
+      eta: '',
+      pta: '',
+      puDateStart: '',
+      puDateEnd: '',
+      puTimeStart: '',
+      puTimeEnd: '',
+      delDateStart: '',
+      delDateEnd: '',
+      delTimeStart: '',
+      delTimeEnd: '',
+      loadType: '',
+      unloadType: '',
+      orderStatus: '',
+      preloadedTrailer: '',
+      poNumber: '',
+      puRefNumber: '',
+      delRefNumber: '',
+      customerComments: '',
+    );
+  }
+}
+
+class Truck {
+  String tracNumber;
+  String trlrNumber;
+  String drv1Code;
+  String drv2Code;
+  String drv1Home;
+  String drv2Home;
+  String dmgr1;
+  String dmgr2;
+  String orderNumber;
+
+  Truck({
+    required this.tracNumber,
+    required this.trlrNumber,
+    required this.drv1Code,
+    required this.drv2Code,
+    required this.drv1Home,
+    required this.drv2Home,
+    required this.dmgr1,
+    required this.dmgr2,
+    required this.orderNumber,
+  });
+}
+
+class Customer {
+  String customerCode;
+  String customerName;
+  String address;
+  String zip;
+  String csr;
+  String cityCode;
+  String city;
+
+  Customer({
+    required this.customerCode,
+    required this.customerName,
+    required this.address,
+    required this.zip,
+    required this.csr,
+    required this.cityCode,
+    required this.city,
   });
 }
