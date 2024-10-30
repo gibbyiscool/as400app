@@ -107,78 +107,97 @@ class _OrderCreatorScreenState extends State<OrderCreatorScreen> {
     super.dispose();
   }
 
-  void _createOrder() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      Order newOrder = Order.createNewOrder(_custCode, _customerName, _origin);
-      newOrder.cmdty = _cmdty;
-      newOrder.mileLoad = _mileLoad;
-      newOrder.trlrPalletBal = _trlrPalletBal;
-      newOrder.consCode = _consCode;
-      newOrder.cons = _consigneeName;
-      newOrder.dest = _destination;
-      newOrder.cont = _cont;
-      newOrder.custNumber = _custNumber;
-      newOrder.currentOrderNumber = _currentOrderNumber;
-      newOrder.puDateStart = _puDateStart;
-      newOrder.puDateEnd = _puDateEnd;
-      newOrder.puTimeStart = _puTimeStart;
-      newOrder.puTimeEnd = _puTimeEnd;
-      newOrder.delDateStart = _delDateStart;
-      newOrder.delDateEnd = _delDateEnd;
-      newOrder.delTimeStart = _delTimeStart;
-      newOrder.delTimeEnd = _delTimeEnd;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OrderScreen(order: newOrder),
-        ),
-      );
-    }
+  Future<void> _createOrder() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+
+    Order newOrder = Order(
+      custCode: _custCode,
+      cust: _customerName,
+      orig: _origin,
+      cmdty: _cmdty,
+      mileLoad: _mileLoad,
+      trlrPalletBal: _trlrPalletBal,
+      consCode: _consCode,
+      cons: _consigneeName,
+      cont: _cont,
+      dest: _destination,
+      custNumber: _custNumber,
+      del: '',
+      currentOrderNumber: _currentOrderNumber,
+      eta: '',
+      pta: '',
+      puDateStart: _puDateStart,
+      puDateEnd: _puDateEnd,
+      puTimeStart: _puTimeStart,
+      puTimeEnd: _puTimeEnd,
+      delDateStart: _delDateStart,
+      delDateEnd: _delDateEnd,
+      delTimeStart: _delTimeStart,
+      delTimeEnd: _delTimeEnd,
+      loadType: '',
+      unloadType: '',
+      orderStatus: '',
+      preloadedTrailer: '',
+      poNumber: '',
+      puRefNumber: '',
+      delRefNumber: '',
+      customerComments: '',
+    );
+
+    // Insert the new order into the database
+    await OrderDatabase().insertOrder(newOrder);
+
+    // Navigate to the OrderScreen to show the order details
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderScreen(order: newOrder),
+      ),
+    );
   }
+}
+
+
 
   String? _validateCustomerCode(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Required field';
-    } else if (!_isValidCustomerCode(value)) {
-      return 'Entered code is not correct, please re-enter code or create customer in customer creator';
-    }
-    return null;
+  if (value == null || value.isEmpty) {
+    return 'Required field';
+  } else {
+    return null; // Asynchronous check must be done separately
   }
+}
 
-  bool _isValidCustomerCode(String code) {
-    // Check against the customer database
-    return CustomerDatabase().getCustomer(code) != null;
+void _onCustomerCodeSubmitted(String value) async {
+  Customer? customer = await CustomerDatabase().getCustomer(value);
+  if (customer != null) {
+    setState(() {
+      _customerName = customer.customerName;
+      _origin = customer.city;
+    });
+  } else {
+    setState(() {
+      _customerName = 'None found';
+      _origin = 'None found';
+    });
   }
+}
 
-  void _onCustomerCodeSubmitted(String value) {
-    Customer? customer = CustomerDatabase().getCustomer(value);
-    if (customer != null) {
-      setState(() {
-        _customerName = customer.customerName;
-        _origin = customer.city;
-      });
-    } else {
-      setState(() {
-        _customerName = 'None found';
-        _origin = 'None found';
-      });
-    }
+void _onConsigneeCodeSubmitted(String value) async {
+  Customer? consignee = await CustomerDatabase().getCustomer(value);
+  if (consignee != null) {
+    setState(() {
+      _consigneeName = consignee.customerName;
+      _destination = consignee.city;
+    });
+  } else {
+    setState(() {
+      _consigneeName = 'None found';
+      _destination = 'None found';
+    });
   }
-  void _onConsigneeCodeSubmitted(String value) {
-    Customer? consignee = CustomerDatabase().getCustomer(value);
-    if (consignee != null) {
-      setState(() {
-        _consigneeName = consignee.customerName;
-        _destination = consignee.city;
-      });
-    } else {
-      setState(() {
-        _consigneeName = 'None found';
-        _destination = 'None found';
-      });
-    }
-  }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -2,14 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
-void main() => runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TruckScreen(),
-      routes: {
-        '/truckScreen': (context) => TruckScreen(),
-      },
-    ));
-
 class TruckScreen extends StatefulWidget {
   @override
   _TruckScreenState createState() => _TruckScreenState();

@@ -1,7 +1,10 @@
 import 'package:as400app/DispatchMenu.dart';
 import 'package:as400app/InactiveMenu.dart';
-import 'package:as400app/main.dart';
+import 'package:as400app/LogIn.dart';
+import 'DatabaseManagerAndCreators/OrderLook.dart';
+import 'DatabaseManagerAndCreators/OrderManager.dart';
 import 'package:flutter/material.dart';
+import 'DatabaseManagerAndCreators/CustomerMana.dart';
 import 'dart:async';
 
 void main() => runApp(MaterialApp(
@@ -57,10 +60,13 @@ class _MainMenuState extends State<MainMenu> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => DispatchServiceMenu()));
         break;
       case '3':
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerLookupScreen()));
       case '4':
+      
       case '5':
+      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderCreatorScreen()));
       case '6':
-       //Navigator.push(context, MaterialPageRoute(builder: (context) => ()));
+       Navigator.push(context, MaterialPageRoute(builder: (context) => OrderLookupScreen()));
       case '7':
         Navigator.push(context, MaterialPageRoute(builder: (context) => InactiveMenu()));
         break;

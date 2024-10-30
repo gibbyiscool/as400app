@@ -1,5 +1,5 @@
 import 'package:as400app/InactiveMenu.dart';
-import 'package:as400app/main.dart';
+import 'package:as400app/LogIn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
