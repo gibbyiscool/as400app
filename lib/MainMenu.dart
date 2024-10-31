@@ -1,5 +1,6 @@
 import 'package:as400app/DispatchMenu.dart';
 import 'package:as400app/InactiveMenu.dart';
+import 'DatabaseManagerAndCreators/TruckManager.dart';
 import 'package:as400app/LogIn.dart';
 import 'DatabaseManagerAndCreators/OrderLook.dart';
 import 'DatabaseManagerAndCreators/OrderManager.dart';
@@ -68,7 +69,7 @@ class _MainMenuState extends State<MainMenu> {
       case '6':
        Navigator.push(context, MaterialPageRoute(builder: (context) => OrderLookupScreen()));
       case '7':
-        Navigator.push(context, MaterialPageRoute(builder: (context) => InactiveMenu()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TruckLookupScreen()));
         break;
       case '90':
         Navigator.push(context, MaterialPageRoute(builder: (context) => LogInView()));

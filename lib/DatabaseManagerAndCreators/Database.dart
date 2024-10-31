@@ -27,6 +27,9 @@ class TruckDatabase {
           CREATE TABLE trucks(
             tracNumber TEXT PRIMARY KEY,
             trlrNumber TEXT,
+            licensePlate TEXT,
+            last6Vin TEXT,
+            status TEXT,
             drv1Code TEXT,
             drv2Code TEXT,
             drv1Home TEXT,
@@ -49,6 +52,31 @@ class TruckDatabase {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+Future<void> deleteTruck(String tracNumber) async {
+    final db = await database;
+    await db.delete(
+      'trucks',
+      where: 'tracNumber = ?',
+      whereArgs: [tracNumber],
+    );
+  }
+
+  Future<void> updateTruck(Truck truck) async {
+    final db = await database;
+    await db.update(
+      'trucks',
+      truck.toMap(),
+      where: 'tracNumber = ?',
+      whereArgs: [truck.tracNumber],
+    );
+  }
+
+  Future<List<String>> getAllTruckNumbers() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('trucks', columns: ['tracNumber']);
+    return List.generate(maps.length, (i) => maps[i]['tracNumber'] as String);
+  }
+
 
   Future<Truck?> getTruck(String tracNumber) async {
     final db = await database;
@@ -281,6 +309,9 @@ Future<List<String>> getAllCustomerCodes() async {
 class Truck {
   String tracNumber;
   String trlrNumber;
+  String licensePlate;
+  String last6Vin;
+  String status;
   String drv1Code;
   String drv2Code;
   String drv1Home;
@@ -292,6 +323,9 @@ class Truck {
   Truck({
     required this.tracNumber,
     required this.trlrNumber,
+    required this.licensePlate,
+    required this.last6Vin,
+    required this.status,
     required this.drv1Code,
     required this.drv2Code,
     required this.drv1Home,
@@ -305,6 +339,9 @@ class Truck {
     return {
       'tracNumber': tracNumber,
       'trlrNumber': trlrNumber,
+      'licensePlate': licensePlate,
+      'last6Vin': last6Vin,
+      'status': status, 
       'drv1Code': drv1Code,
       'drv2Code': drv2Code,
       'drv1Home': drv1Home,
@@ -319,6 +356,9 @@ class Truck {
     return Truck(
       tracNumber: map['tracNumber'],
       trlrNumber: map['trlrNumber'],
+      licensePlate: map['licensePlate'],
+      last6Vin: map['last6Vin'],
+      status: map['status'],
       drv1Code: map['drv1Code'],
       drv2Code: map['drv2Code'],
       drv1Home: map['drv1Home'],
