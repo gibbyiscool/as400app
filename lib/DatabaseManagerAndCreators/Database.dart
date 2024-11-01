@@ -18,31 +18,35 @@ class TruckDatabase {
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
-    String dbPath = await getDatabasesPath();
-    return openDatabase(
-      join(dbPath, filePath),
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE trucks(
-            tracNumber TEXT PRIMARY KEY,
-            trlrNumber TEXT,
-            licensePlate TEXT,
-            last6Vin TEXT,
-            status TEXT,
-            drv1Code TEXT,
-            drv2Code TEXT,
-            drv1Home TEXT,
-            drv2Home TEXT,
-            dmgr1 TEXT,
-            dmgr2 TEXT,
-            orderNumber TEXT
-          )
-        ''');
-      },
-      version: 1,
-    );
-  }
+ Future<Database> _initDB(String filePath) async {
+  String dbPath = await getDatabasesPath();
+  return openDatabase(
+    join(dbPath, filePath),
+    onCreate: (db, version) async {
+      await db.execute('''
+        CREATE TABLE trucks(
+          tracNumber TEXT PRIMARY KEY,
+          trlrNumber TEXT,
+          licensePlate TEXT,
+          last6Vin TEXT,
+          status TEXT,
+          drv1Code TEXT,
+          drv1Name TEXT,
+          drv2Code TEXT,
+          drv2Name TEXT,
+          drv1Home TEXT,
+          drv2Home TEXT,
+          dmgr1 TEXT,
+          dmgr2 TEXT,
+          orderNumber TEXT,
+          pta TEXT
+        )
+      ''');
+    },
+    version: 2, // Increase version to force re-creation
+  );
+}
+
 
   Future<void> insertTruck(Truck truck) async {
     final db = await database;
@@ -128,7 +132,6 @@ class OrderDatabase {
             custNumber TEXT,
             del TEXT,
             eta TEXT,
-            pta TEXT,
             puDateStart TEXT,
             puDateEnd TEXT,
             puTimeStart TEXT,
@@ -174,10 +177,58 @@ class OrderDatabase {
       return null;
     }
   }
+   Future<void> deleteOrder(String orderNumber) async {
+    final db = await database;
+    await db.delete(
+      'orders',
+      where: 'currentOrderNumber = ?',
+      whereArgs: [orderNumber],
+    );
+  }
+
+  Future<void> updateOrder(Order order) async {
+    final db = await database;
+    await db.update(
+      'orders',
+      order.toMap(),
+      where: 'currentOrderNumber = ?',
+      whereArgs: [order.currentOrderNumber],
+    );
+  }
+  Future<String> getNextOrderNumber() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery('SELECT MAX(currentOrderNumber) as maxOrderNumber FROM orders');
+    final nextOrderNumber = (int.parse(result.first['maxOrderNumber'] ?? '00000000') + 1).toString().padLeft(8, '0');
+    return nextOrderNumber;
+  }
+
+  Future<bool> checkCustomerCodeExists(String custCode) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'orders',
+      where: 'custCode = ?',
+      whereArgs: [custCode],
+    );
+    return result.isNotEmpty;
+  }
+  Future<List<String>> getAllOrderNumbers() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('orders', columns: ['currentOrderNumber']);
+    return List.generate(maps.length, (i) => maps[i]['currentOrderNumber'] as String);
+  }
+
+  Future<String> getNextCustomerCode() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery('SELECT MAX(custCode) as maxCode FROM orders');
+    final String maxCode = result.first['maxCode'] ?? '0000000';
+    final nextCode = (int.tryParse(maxCode) ?? 0 + 1).toString().padLeft(7, '0');
+    return nextCode;
+  }
 
   // Method to create a new order and insert it into the database
   Future<void> createNewOrder(String custCode, String currentOrderNumber) async {
     final customer = await CustomerDatabase().getCustomer(custCode);
+
     if (customer == null) {
       throw Exception("Customer not found");
     }
@@ -197,7 +248,6 @@ class OrderDatabase {
       del: '',
       currentOrderNumber: currentOrderNumber,
       eta: '',
-      pta: '',
       puDateStart: '',
       puDateEnd: '',
       puTimeStart: '',
@@ -313,12 +363,15 @@ class Truck {
   String last6Vin;
   String status;
   String drv1Code;
+  String drv1Name;
   String drv2Code;
+  String drv2Name;
   String drv1Home;
   String drv2Home;
   String dmgr1;
   String dmgr2;
   String orderNumber;
+  String pta;
 
   Truck({
     required this.tracNumber,
@@ -327,12 +380,15 @@ class Truck {
     required this.last6Vin,
     required this.status,
     required this.drv1Code,
+    required this.drv1Name,
     required this.drv2Code,
+    required this.drv2Name,
     required this.drv1Home,
     required this.drv2Home,
     required this.dmgr1,
     required this.dmgr2,
     required this.orderNumber,
+    required this.pta,
   });
 
   Map<String, dynamic> toMap() {
@@ -343,12 +399,15 @@ class Truck {
       'last6Vin': last6Vin,
       'status': status, 
       'drv1Code': drv1Code,
+      'drv1Name':drv1Name,
       'drv2Code': drv2Code,
+      'drv2Name':drv2Name,
       'drv1Home': drv1Home,
       'drv2Home': drv2Home,
       'dmgr1': dmgr1,
       'dmgr2': dmgr2,
       'orderNumber': orderNumber,
+      'pta':pta
     };
   }
 
@@ -360,12 +419,15 @@ class Truck {
       last6Vin: map['last6Vin'],
       status: map['status'],
       drv1Code: map['drv1Code'],
+      drv1Name: map['drv1Name'],
       drv2Code: map['drv2Code'],
+      drv2Name: map['drv2Name'],
       drv1Home: map['drv1Home'],
       drv2Home: map['drv2Home'],
       dmgr1: map['dmgr1'],
       dmgr2: map['dmgr2'],
       orderNumber: map['orderNumber'],
+      pta: map['pta']
     );
   }
 }
@@ -385,7 +447,6 @@ class Order {
   String del;
   String currentOrderNumber;
   String eta;
-  String pta;
   String puDateStart;
   String puDateEnd;
   String puTimeStart;
@@ -418,7 +479,6 @@ class Order {
     required this.del,
     required this.currentOrderNumber,
     required this.eta,
-    required this.pta,
     required this.puDateStart,
     required this.puDateEnd,
     required this.puTimeStart,
@@ -453,7 +513,6 @@ class Order {
       'del': del,
       'currentOrderNumber': currentOrderNumber,
       'eta': eta,
-      'pta': pta,
       'puDateStart': puDateStart,
       'puDateEnd': puDateEnd,
       'puTimeStart': puTimeStart,
@@ -489,7 +548,6 @@ class Order {
       del: map['del'],
       currentOrderNumber: map['currentOrderNumber'],
       eta: map['eta'],
-      pta: map['pta'],
       puDateStart: map['puDateStart'],
       puDateEnd: map['puDateEnd'],
       puTimeStart: map['puTimeStart'],

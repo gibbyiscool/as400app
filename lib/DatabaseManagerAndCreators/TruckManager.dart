@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'Database.dart';
 
 class TruckLookupScreen extends StatefulWidget {
+  final String? truckNumber;
+
+  TruckLookupScreen({this.truckNumber});
+
   @override
   _TruckLookupScreenState createState() => _TruckLookupScreenState();
 }
@@ -11,15 +15,65 @@ class _TruckLookupScreenState extends State<TruckLookupScreen> {
   String _truckNumber = '';
   Truck? _truck;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.truckNumber != null) {
+      _truckNumber = widget.truckNumber!;
+      _lookupTruck();  // Lookup the truck as soon as the screen is initialized
+    }
+  }
+
   void _lookupTruck() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    if (_truckNumber.isNotEmpty) {
       Truck? truck = await TruckDatabase().getTruck(_truckNumber);
       setState(() {
         _truck = truck;
       });
+    } else if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      if (_truckNumber.isNotEmpty) {
+        Truck? truck = await TruckDatabase().getTruck(_truckNumber);
+        setState(() {
+          _truck = truck;
+        });
+      } else {
+        // If no truck number is provided, show all trucks
+        List<String> truckNumbers = await TruckDatabase().getAllTruckNumbers();
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('All Trucks'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: truckNumbers.map((number) {
+                  return ListTile(
+                    title: Text(number),
+                    onTap: () async {
+                      // Lookup the selected truck
+                      Truck? selectedTruck = await TruckDatabase().getTruck(number);
+                      setState(() {
+                        _truck = selectedTruck;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
+
 
   void _deleteTruck() async {
     if (_truck != null) {
@@ -114,12 +168,15 @@ class _TruckLookupScreenState extends State<TruckLookupScreen> {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text('Truck Number: ${_truckNumber}'),
                       Text('Trailer Number: ${_truck!.trlrNumber}'),
                       Text('License Plate: ${_truck!.licensePlate}'),
                       Text('Last 6 VIN: ${_truck!.last6Vin}'),
                       Text('Status: ${_truck!.status}'),
                       Text('Driver 1 Code: ${_truck!.drv1Code}'),
+                      Text('Driver 1 Name${_truck!.drv1Name}'),
                       Text('Driver 2 Code: ${_truck!.drv2Code}'),
+                      Text('Driver 2 Name${_truck!.drv2Name}'),
                       Text('Driver 1 Home: ${_truck!.drv1Home}'),
                       Text('Driver 2 Home: ${_truck!.drv2Home}'),
                       Text('Driver Manager 1: ${_truck!.dmgr1}'),
@@ -183,7 +240,9 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
   String _last6Vin = '';
   String _status = 'A';
   String _drv1Code = '';
+  String _drv1Name = '';
   String _drv2Code = '';
+  String _drv2Name = '';
   String _drv1Home = '';
   String _drv2Home = '';
   String _dmgr1 = '';
@@ -191,6 +250,7 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
   String _orderNumber = '';
   String _orderCustomerCode = '';
   String _orderConsigneeCode = '';
+  String _pta = '';
 
   @override
   void initState() {
@@ -202,12 +262,15 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
       _last6Vin = widget.truck!.last6Vin;
       _status = widget.truck!.status;
       _drv1Code = widget.truck!.drv1Code;
+      _drv1Name = widget.truck!.drv1Name;
       _drv2Code = widget.truck!.drv2Code;
+      _drv2Name = widget.truck!.drv2Name;
       _drv1Home = widget.truck!.drv1Home;
       _drv2Home = widget.truck!.drv2Home;
       _dmgr1 = widget.truck!.dmgr1;
       _dmgr2 = widget.truck!.dmgr2;
       _orderNumber = widget.truck!.orderNumber;
+      _pta = widget.truck!.pta;
     }
   }
 
@@ -241,12 +304,15 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
         last6Vin: _last6Vin,
         status: _status,
         drv1Code: _drv1Code,
+        drv1Name: _drv1Name,
         drv2Code: _drv2Code,
+        drv2Name: _drv2Name,
         drv1Home: _drv1Home,
         drv2Home: _drv2Home,
         dmgr1: _dmgr1,
         dmgr2: _dmgr2,
         orderNumber: _orderNumber,
+        pta: _pta
       );
       if (widget.truck == null) {
         await TruckDatabase().insertTruck(newTruck);
@@ -298,9 +364,9 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
                 onSaved: (value) => _last6Vin = value ?? '',
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Status'),
+                decoration: InputDecoration(labelText: 'Status.'),
                 initialValue: _status,
-                onSaved: (value) => _status = value ?? '',
+                onSaved: (value) => _status = value ?? 'A',
                 validator: (value) => value!.isEmpty ? 'Required field' : null,
                 enabled: widget.truck != null,
               ),
@@ -309,10 +375,20 @@ class _TruckCreatorScreenState extends State<TruckCreatorScreen> {
                 initialValue: _drv1Code,
                 onSaved: (value) => _drv1Code = value ?? '',
               ),
+               TextFormField(
+                decoration: InputDecoration(labelText: 'Driver 1 Name'),
+                initialValue: _drv1Name,
+                onSaved: (value) => _drv1Name = value ?? '',
+              ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Driver 2 Code'),
                 initialValue: _drv2Code,
                 onSaved: (value) => _drv2Code = value ?? '',
+              ),
+               TextFormField(
+                decoration: InputDecoration(labelText: 'Driver 2 Name'),
+                initialValue: _drv2Name,
+                onSaved: (value) => _drv2Name = value ?? '',
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Driver 1 Home'),

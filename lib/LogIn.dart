@@ -3,6 +3,7 @@ import 'package:as400app/MainMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'AdminMenu.dart';
 
 class LogInView extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _LogInViewState extends State<LogInView> {
   String? errorMessage;
 
   final Map<String, String> users = {
-    'Admin': 'password',
+    'Admin': '1',
     'Test': '1234',
     'Testing': 'Western1',
     'NewUser': 'Western1',
@@ -24,7 +25,7 @@ class _LogInViewState extends State<LogInView> {
   void handleLogin() {
     if (authenticateUser(username, password)) {
       if (username == 'Admin') {
-        Navigator.pushNamed(context, '/adminPage');
+        Navigator.pushNamed(context, '/adminMenuPage');
       } else {
         Navigator.pushNamed(context, '/mainMenu');
       }
@@ -265,8 +266,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LogInView(),
         '/mainMenu': (context) => MainMenu(),
-        '/adminPage': (context) => AdminPage(),
-        '/customerServices': (context) => CustomerServicesMenu(),
+        '/adminPage': (context) => AdminMenuPage(),
+        //'/customerServices': (context) => CustomerServicesMenu(),
         '/dispatchServiceMenu': (context) => DispatchServiceMenu(),
         //'/inactiveMenu': (context) => InactiveMenu(),
       },
@@ -316,16 +317,4 @@ class _GlobalKeyListenerState extends State<GlobalKeyListener> {
   }
 }
 
-class AdminPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Page WIP!!!!'),
-      ),
-      body: Center(
-        child: Text('Welcome, Admin! WIP!!!!'),
-      ),
-    );
-  }
-}
+

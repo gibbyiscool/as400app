@@ -1,8 +1,8 @@
+import 'package:as400app/AdminMenu.dart';
 import 'package:as400app/DispatchMenu.dart';
 import 'package:as400app/InactiveMenu.dart';
 import 'DatabaseManagerAndCreators/TruckManager.dart';
 import 'package:as400app/LogIn.dart';
-import 'DatabaseManagerAndCreators/OrderLook.dart';
 import 'DatabaseManagerAndCreators/OrderManager.dart';
 import 'package:flutter/material.dart';
 import 'DatabaseManagerAndCreators/CustomerMana.dart';
@@ -63,7 +63,7 @@ class _MainMenuState extends State<MainMenu> {
       case '3':
       Navigator.push(context, MaterialPageRoute(builder: (context) => CustomerLookupScreen()));
       case '4':
-      
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AdminMenuPage()));
       case '5':
       Navigator.push(context, MaterialPageRoute(builder: (context) => OrderCreatorScreen()));
       case '6':
@@ -214,6 +214,7 @@ class _MainMenuState extends State<MainMenu> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               isDense: true,
+                              counterText: "",
                               contentPadding: EdgeInsets.symmetric(vertical: 5),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.green),

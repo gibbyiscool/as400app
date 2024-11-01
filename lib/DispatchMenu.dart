@@ -12,7 +12,7 @@ void main() => runApp(MaterialApp(
       home: LogInView(),
       routes: {
         '/dispatchServiceMenu': (context) => DispatchServiceMenu(),
-        '/mainMenu':(context) => MainMenu()
+       // '/mainMenu':(context) => MainMenu()
       },
     ));
 
@@ -67,7 +67,7 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
         break;
       default:
         if (int.tryParse(input) != null && int.parse(input) >= 1 && int.parse(input) <= _totalOptions) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => InactiveMenu()));
+          //Navigator.push(context, MaterialPageRoute(builder: (context) => InactiveMenu()));
         } else {
           setState(() {
             option = '';
@@ -224,6 +224,7 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
                               cursorColor: Colors.white,
                               maxLength: 2,
                               decoration: InputDecoration(
+                                counterText: "",
                                 isDense: true,
                                 contentPadding: EdgeInsets.symmetric(vertical: 8),
                                 enabledBorder: UnderlineInputBorder(
@@ -232,7 +233,7 @@ class _DispatchServiceMenuState extends State<DispatchServiceMenu> {
                                 focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(color: Colors.green),
                                 ),
-                                counterText: '',
+      
                               ),
                               onChanged: (value) {
                                 setState(() {
