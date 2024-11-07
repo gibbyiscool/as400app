@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'; 
+import 'package:as400app/Test.dart';
 import 'dart:async';
+void main() => runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: TruckScreen(),
+      routes: {
+        '/truckScreen': (context) => TruckScreen(),
+      },
+    ));
 
 class TruckScreen extends StatefulWidget {
   @override
@@ -13,6 +21,7 @@ class TruckScreen extends StatefulWidget {
 class _TruckScreenState extends State<TruckScreen> {
   String tracNumber = '';
   String trlrNumber = '';
+  String status = '';
   String drv1Code = '';
   String drv2Code = '';
   String drv1Home = '';
@@ -35,9 +44,19 @@ class _TruckScreenState extends State<TruckScreen> {
   String cont = '';
   String custNumber = '';
   String del = '';
+  String puDateStart = '';
+  String puTimeStart = '';
+  String puDateEnd = '';
+  String puTimeEnd = '';
+  String delDateStart = '';
+  String delTimeStart = '';
+  String delDateEnd = '';
+  String delTimeEnd = '';
   String eta = '';
   String pta = '';
   String errorMessage = '';
+  bool changeBackground = false;
+  bool isEditable = true;
   List<Map<String, String>> previousCalls = [];
 
   late Timer timer;
@@ -54,6 +73,10 @@ class _TruckScreenState extends State<TruckScreen> {
     databaseFactory = databaseFactoryFfi;
     _focusNode.requestFocus();
     _updateTimeEveryMinute();
+    /*WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("App started - attempting to load truck 12345"); // Log: App started
+      loadTruckData('12345'); // Automatically load truck data for '12345' on app start
+    });*/
   }
 
   void _updateTimeEveryMinute() {
@@ -69,6 +92,7 @@ class _TruckScreenState extends State<TruckScreen> {
     _locController.dispose();
     _typeController.dispose();
     super.dispose();
+    
   }
 
   String _getCurrentDate() {
@@ -82,22 +106,29 @@ class _TruckScreenState extends State<TruckScreen> {
   }
 
   Future<void> loadTruckData(String tracNumber) async {
+    print('Loading truck data for $tracNumber');
     Database db = await openDatabase(join(await getDatabasesPath(), 'trucks.db'));
     List<Map<String, dynamic>> truckData = await db.query(
       'trucks',
       where: 'tracNumber = ?',
       whereArgs: [tracNumber],
     );
+    print('query result for tracNumber $tracNumber: ${truckData.isNotEmpty ? truckData.first : 'No data found for $tracNumber'}');
     if (truckData.isNotEmpty) {
       setState(() {
         this.tracNumber = truckData.first['tracNumber'] ?? '';
         trlrNumber = truckData.first['trlrNumber'] ?? '';
+        status = truckData.first['status'] ?? '';
         drv1Code = truckData.first['drv1Code'] ?? '';
         drv2Code = truckData.first['drv2Code'] ?? '';
         drv1Home = truckData.first['drv1Home'] ?? '';
         drv2Home = truckData.first['drv2Home'] ?? '';
         dmgr1 = truckData.first['dmgr1'] ?? '';
         dmgr2 = truckData.first['dmgr2'] ?? '';
+        changeBackground = true;
+        isEditable = false;
+        
+        _trlrNumberController.text = trlrNumber;
       });
       await loadOrderData(truckData.first['orderNumber'] ?? '');
     }
@@ -119,6 +150,14 @@ class _TruckScreenState extends State<TruckScreen> {
         mileLoad = orderData.first['mileLoad'] ?? '';
         trlrPalletBal = orderData.first['trlrPalletBal'] ?? '';
         cont = orderData.first['cont'] ?? '';
+        puDateStart = orderData.first['puDateStart'] ?? '';
+        puTimeStart = orderData.first['puTimeStart'] ?? '';
+        puDateEnd = orderData.first['puDateEnd'] ?? '';
+        puTimeEnd = orderData.first['puTimeEnd'] ?? '';
+        delDateStart = orderData.first['delDateStart'] ?? '';
+        delTimeStart = orderData.first['delTimeStart'] ?? '';
+        delDateEnd = orderData.first['delDateEnd'] ?? '';
+        delTimeEnd = orderData.first['delTimeEnd'] ?? '';
         eta = orderData.first['eta'] ?? '';
         pta = orderData.first['pta'] ?? '';
       });
@@ -185,85 +224,112 @@ class _TruckScreenState extends State<TruckScreen> {
               double width = constraints.maxWidth;
               double height = constraints.maxHeight;
               double adjustedWidth = width;
-              double fontSize = adjustedWidth / 35;
-
+              double fontSize = adjustedWidth / 60;
+              double characterWidth = fontSize * 0.6;
+              double paddingSmall = width * 0.025;
+              double paddingCust = width * 0.0209;
+              double paddingCustTitle = width * 0.01;
+              double cityPaddingTitle = width * 0.028;
+              double paddingSmallTitle = width * 0.01;
+              double paddingSmallEdge = width * 0.004;
+              double cityPadding = width * 0.02;  // For minimal spacing
+              double timeDatePadding = width * 0.050;
+              double timeDatePaddingSpacer = width * 0.0642;
+              double timeDatePaddingTitle = width * 0.09;
+              double timeDatePaddingTitleSpacer = width * 0.08;
+              double trlrPadding = width * 0.01;
+              double locPadding = width * 0.01;
+              
               return Container(
                 width: adjustedWidth,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(1.0),
                       child: Row(
                         children: [
-                          Text('Trac: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
-                          SizedBox(
-                            width: 60,
-                            child: TextField(
-                              controller: _tracNumberController,
-                              maxLength: 6,
-                              style: TextStyle(color: Colors.yellow, fontFamily: 'Courier New', fontSize: fontSize),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
-                                ),
-                              ),
-                              onSubmitted: (value) {
-                                loadTruckData(value);
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Text('Trlr: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
-                          SizedBox(
-                            width: 80,
-                            child: TextField(
-                              controller: _trlrNumberController,
-                              maxLength: 6,
-                              style: TextStyle(color: Colors.yellow, fontFamily: 'Courier New', fontSize: fontSize),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
+                            Padding(
+                              padding: EdgeInsets.only(right: trlrPadding), 
+                              child: Row(
+                              children: [
+                                Text('Trac: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+                              SizedBox(
+                                width: width*0.055,
+                        
+                                child: UniversalTextInput(
+                                  label: '',
+                                  maxLength: 5,
+                                  controller: _tracNumberController,
+                                  fillWithZeros: false,
+                                  showCursor: true,
+                                  isEditable: isEditable,
+                                  fontSize: fontSize,
+                                  changeBackground: changeBackground,
+                                  characterWidth: characterWidth,
+                                  onSubmit: (value) {
+                                    changeBackground = true;
+                                    loadTruckData(value);
+                                  },
                                 ),
                               ),
+                            ],                            
                             ),
-                          ),
-                          SizedBox(width: 16),
-                          Text('Loc: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
-                          SizedBox(
-                            width: 70,
-                            child: TextField(
-                              controller: _locController,
-                              maxLength: 5,
-                              style: TextStyle(color: Colors.yellow, fontFamily: 'Courier New', fontSize: fontSize),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.green),
+                            ),
+                          Padding(
+                              padding: EdgeInsets.only(right: locPadding), 
+                              child: Row(
+                              children: [
+                                Text('trlr: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+                              SizedBox(
+                                width: width*0.06,
+                        
+                                child: UniversalTextInput(
+                                  label: '',
+                                  maxLength: 6,
+                                  controller: _trlrNumberController,
+                                  fillWithZeros: false,
+                                  showCursor: true,
+                                  isEditable: isEditable,
+                                  fontSize: fontSize,
+                                  changeBackground: false,
+                                  characterWidth: characterWidth,
+                                  onSubmit: (value) {
+                                    changeBackground = true;
+                                    loadTruckData(value);
+                                  },
                                 ),
                               ),
+                            ],                            
                             ),
-                          ),
+                            ),
+                          Padding(
+                              padding: EdgeInsets.only(right: trlrPadding), 
+                              child: Row(
+                              children: [
+                                Text('loc: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+                              SizedBox(
+                                width: width*0.06,
+                        
+                                child: UniversalTextInput(
+                                  label: '',
+                                  maxLength: 6,
+                                  controller: _locController,
+                                  fillWithZeros: false,
+                                  showCursor: true,
+                                  isEditable: true,
+                                  fontSize: fontSize,
+                                  changeBackground: false,
+                                  characterWidth: characterWidth,
+                                  onSubmit: (value) {
+                                    changeBackground = true;
+                                    loadTruckData(value);
+                                  },
+                                ),
+                              ),
+                            ],                            
+                            ),
+                            ),
                           SizedBox(width: 16),
                           Text('Type: ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
                           SizedBox(
@@ -289,6 +355,8 @@ class _TruckScreenState extends State<TruckScreen> {
                               },
                             ),
                           ),
+                          Text('Status: $status', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+
                         ],
                       ),
                     ),
@@ -307,6 +375,7 @@ class _TruckScreenState extends State<TruckScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Drv1: $drv1Code', style: TextStyle(color: Colors.yellow, fontFamily: 'Courier New', fontSize: fontSize)),
+                              
                               SizedBox(height: 1),
                               Text('Home: $drv1Home', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
                               SizedBox(height: 1),
@@ -356,41 +425,124 @@ class _TruckScreenState extends State<TruckScreen> {
                       ],
                     ),
                     SizedBox(height: 12),
+Row(
+children: [
+          // Stp and Typ very close to each other
+          Padding(
+            padding: EdgeInsets.only(right: paddingSmallTitle), // Minimal spacing for 'Stp'
+            child: Text('Stp', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: paddingCustTitle), // Slightly more space after 'Typ'
+            child: Text('Typ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // Cust and City close to Typ and each other
+          Padding(
+            padding: EdgeInsets.only(right: cityPaddingTitle), // Moderate spacing for 'Cust'
+            child: Text('Cust', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingTitleSpacer), // Spacing for 'City'
+            child: Text('City', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // Scheduled, ETA, Arrived, Departure far from each other
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingTitle), // Extra spacing between items
+            child: Text('Scheduled', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingTitle * 1.08),
+            child: Text('ETA', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingTitle),
+            child: Text('Arrived', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Text('Departure', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize)),
+        ],
+),
+
+                    Row(
+  children: [
+          // 01 and P very close to each other
+          Padding(
+            padding: EdgeInsets.only(right: paddingSmall, left: paddingSmallEdge), // Minimal spacing for '01'
+            child: Text('01', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: paddingCust),
+            child: Text('P', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // custCode and origCity close to each other and to P
+          Padding(
+            padding: EdgeInsets.only(right: cityPadding),
+            child: Text('$custCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingSpacer),
+            child: Text('$origCityCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // Scheduled, ETA, Arrived, Departure far from each other
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding),
+            child: Text('$puDateStart  $puTimeStart', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding * 1 ), // Increase spacing for these items
+            child: Text('$puDateEnd  $puTimeEnd', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          // Arrival times and Departure times (00 values)
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding * 1.6),
+            child: Text('0000 0000', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Text('0000 0000', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+        ],
+),
+
                     Row(
                       children: [
-                        Expanded(child: Text('Stp', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('Typ', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('Cust', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('City', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('Scheduled', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('ETA', style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('Arrived', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('Departure', softWrap: false, style: TextStyle(color: Colors.green, fontFamily: 'Courier New', fontSize: fontSize))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(child: Text('01', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('P', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$custCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$origCity', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$eta', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$eta', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('0/00', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('0/00', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(child: Text('90', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('D', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$consCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$destCity', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$del', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('$del', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('0/00', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                        Expanded(child: Text('0/00', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize))),
-                      ],
+          // 90 and D very close to each other
+          Padding(
+            padding: EdgeInsets.only(right: paddingSmall, left: paddingSmallEdge), // Minimal spacing for '90'
+            child: Text('90', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: paddingCust),
+            child: Text('D', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // consCode and destCityCode close to each other and to 'D'
+          Padding(
+            padding: EdgeInsets.only(right: cityPadding),
+            child: Text('$consCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePaddingSpacer),
+            child: Text('$destCityCode', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // delDateStart, delTimeStart, delDateEnd, delTimeEnd far from each other
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding), // Spacing for delivery start time
+            child: Text('$delDateStart  $delTimeStart', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding), // Spacing for delivery end time
+            child: Text('$delDateEnd  $delTimeEnd', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+
+          // Arrival times and Departure times (00 values)
+          Padding(
+            padding: EdgeInsets.only(right: timeDatePadding * 1.6), // Increased spacing for these items
+            child: Text('0000 0000', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+          ),
+          Text('0000 0000', style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),
+        ],
                     ),
                     SizedBox(height: 12),
                     Text('SAT Info Lst Loc N/A       N/A TM ${_getCurrentTime()} MPH N/A To Dst: MPH N/A Mls 0000', softWrap: false,  style: TextStyle(color: Colors.white, fontFamily: 'Courier New', fontSize: fontSize)),

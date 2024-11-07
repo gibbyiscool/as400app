@@ -8,6 +8,19 @@ import 'DatabaseManagerAndCreators/Database.dart';
 import 'package:path/path.dart';
 import 'dart:ui';
 
+void main() => runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: AdminMenuPage(),
+      routes: {
+        '/orderCreatorScreen': (context) => OrderCreatorScreen(),
+        '/truckLookupScreen': (context) => TruckLookupScreen(),
+        'truckcreator': (context) => TruckCreatorScreen(),
+        '/adminMenuPage': (context) => AdminMenuPage(),
+        '/orderLookupScreen': (context) => OrderLookupScreen(),
+        '/customerLookupScreen': (context) => CustomerLookupScreen(),
+        
+      },
+    ));
 
 class AdminMenuPage extends StatefulWidget {
   @override
@@ -19,6 +32,7 @@ class _AdminMenuPageState extends State<AdminMenuPage> {
   List<String> menuItems = ["Truck", "Trailer", "Order", "Customer", "Settings"];
   List<String> databaseEntries = [];
   List<String> filteredEntries = [];
+  
 
   @override
   void initState() {

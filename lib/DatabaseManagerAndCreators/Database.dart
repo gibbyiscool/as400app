@@ -50,12 +50,14 @@ class TruckDatabase {
 
   Future<void> insertTruck(Truck truck) async {
     final db = await database;
+    truck.status = truck.orderNumber.isNotEmpty ? 'D' : 'A'; // Set status based on order number
     await db.insert(
       'trucks',
       truck.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
 Future<void> deleteTruck(String tracNumber) async {
     final db = await database;
     await db.delete(
@@ -67,6 +69,7 @@ Future<void> deleteTruck(String tracNumber) async {
 
   Future<void> updateTruck(Truck truck) async {
     final db = await database;
+    truck.status = truck.orderNumber.isNotEmpty ? 'D' : 'A'; // Update status based on order number
     await db.update(
       'trucks',
       truck.toMap(),
